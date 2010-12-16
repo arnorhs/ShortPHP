@@ -1,12 +1,4 @@
 <?php
-/*
-Changes in v1.1.2 :
-[add] The p() function now accepts two new variables - a function to be called and another sitefile
-
-Changes in v1.1.1 :
-[add] You can define your own default sitefile to be called as the default one
-[mod] Sitefile classes are now instantiated and it's object methods are called instead of calling the static functions
-*/
 error_reporting(E_ALL|E_STRICT); // E_STRICT compliant.
 
 ob_start();
