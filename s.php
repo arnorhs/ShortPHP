@@ -1,4 +1,12 @@
 <?php
+/*
+Changes in v1.1.2 :
+[add] The p() function now accepts two new variables - a function to be called and another sitefile
+
+Changes in v1.1.1 :
+[add] You can define your own default sitefile to be called as the default one
+[mod] Sitefile classes are now instantiated and it's object methods are called instead of calling the static functions
+*/
 error_reporting(E_ALL|E_STRICT); // E_STRICT compliant.
 
 ob_start();
@@ -18,6 +26,7 @@ $S_SUBPATH = str_replace('/index.php','',$_SERVER['PHP_SELF']);
 // Now we're going to break the URI parts down by exploding by a slash / - we'll
 // Take care of some minimum sanitizing while we're at it... This will probably
 // have to be rethought at some point.
+$_SERVER['REQUEST_URI'] = @reset(explode('?',$_SERVER['REQUEST_URI'])); // Grabbing only the stuff that comes before the query string
 $S_URI_PARTS = array_slice(explode( '/', urldecode(trim(str_replace(array("\\","\0","\n","\r","<",">","\"","'"),'',str_replace( $S_SUBPATH,'',$_SERVER['REQUEST_URI'])))) ), 1);
 
 // Let's always set a default site file and function by hardcoding them in if they're
@@ -58,12 +67,11 @@ if (class_exists($S_URI_PARTS[0])) {
 	} else {
 		$S_SITE_OBJECT->index();
 	}
-
 	
 }
 
-// Store the site file's output
-$S_CONTENT = ob_get_clean();
+// Store the site file's output - remove weird characters, if present
+$S_CONTENT = trim(ob_get_clean(), "\x20\x09\x0A\x0D\x00\x0B\xEF\xBB\xBF"); // xEF, xBB, xBF were found in some included files - probably unicode markers
 
 // Functions to use within the main index/template file
 
@@ -100,6 +108,8 @@ function uri ($nr=0) {
 // simply output what's been done and then exit the script
 if (isset($_GET['s_notpl']) || defined('s_notpl')) { 
 	die($S_CONTENT);
+} else {
+	header('Content-type: text/html; charset=utf-8');
 }
 
 ?>
